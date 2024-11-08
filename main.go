@@ -118,6 +118,10 @@ func getDiscID() (string, error) {
 	return runCommand("cd-discid")
 }
 
+func getMusicBrainzDiscIDFromCmd() (string, error) {
+	return runCommand("cd-discid", "--musicbrainz")
+}
+
 func fetchGNUDBDiscInfo(discID string) (*DiscInfo, error) {
 	client := &http.Client{}
 	// First, query GNDB for a match
@@ -280,12 +284,15 @@ func main() {
 	if err != nil {
 		log.Fatalf("error retrieving disc ID: %v", err)
 	}
+	log.Printf(gnuToc)
 	discID := strings.Fields(gnuToc)[0]
-	mbToc, err := getMusicBrainzDiscID(gnuToc)
-	log.Printf(mbToc)
+//	mbToc, err := getMusicBrainzDiscID(gnuToc)
+//	log.Printf(mbToc)
+	mbToc, err := getMusicBrainzDiscIDFromCmd()
 	if err != nil {
 		log.Fatalf("error retrieving disc ID: %v", err)
 	}
+	log.Printf(mbToc)
 
 	cueFilePath := cachePlaylistPath(discID)
 	if _, err := os.Stat(cueFilePath); err == nil {
