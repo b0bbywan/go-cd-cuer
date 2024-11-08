@@ -258,7 +258,12 @@ func generateCueFile(info *DiscInfo, cueFilePath string) error {
 }
 
 func cachePlaylistPath(discID string) string {
-	return filepath.Join(cacheLocation, fmt.Sprintf("%s.cue", discID))
+	return filepath.Join(cacheLocation, discID, "playlist.cue")
+}
+
+// Cache cover art path
+func cacheCoverArtPath(discID string) string {
+	return filepath.Join(cacheLocation, discID, "cover.jpg")
 }
 
 func saveEnvFile(cueFile string) error {
@@ -277,6 +282,7 @@ func main() {
 	}
 	discID := strings.Fields(gnuToc)[0]
 	mbToc, err := getMusicBrainzDiscID(gnuToc)
+	log.Printf(mbToc)
 	if err != nil {
 		log.Fatalf("error retrieving disc ID: %v", err)
 	}
@@ -289,7 +295,9 @@ func main() {
 	}
 
 	var discInfo *DiscInfo
-
+	if err := os.MkdirAll(filepath.Dir(cueFilePath), os.ModePerm); err != nil {
+		log.Fatalf("error creating folder for discID: %v", err)
+	}
 	// Attempt to fetch from GNUDB
 	discInfo, err = fetchGNUDBDiscInfo(strings.Replace(gnuToc, " ", "+", -1))
 	if err != nil {
@@ -305,7 +313,7 @@ func main() {
 
 	// If MusicBrainz, attempt cover fetch
 	if discInfo.CoverArtPath == "" {
-		coverFilePath := filepath.Join(cacheLocation, fmt.Sprintf("%s.jpg", discID))
+		coverFilePath := cacheCoverArtPath(discID)
 		if fetchCoverArt(discInfo.ID, coverFilePath) == nil {
 			discInfo.CoverArtPath = coverFilePath
 		}
