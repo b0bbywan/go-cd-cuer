@@ -13,6 +13,7 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+	"sync"
 )
 
 const (
@@ -224,6 +225,53 @@ func fetchMusicBrainzRelease(discID string) (*DiscInfo, error) {
 	}, nil
 }
 
+// Function to fetch disc info from both services using goroutines and WaitGroup
+func fetchDiscInfoConcurrently(discID, mbToc string) (*DiscInfo, error) {
+	var wg sync.WaitGroup
+	var gndbDiscInfo, mbDiscInfo *DiscInfo
+	var gndbErr, mbErr error
+	var gndbDone, mbDone bool
+
+	wg.Add(2)
+
+	// Fetch from GNUDB
+	go func() {
+		defer wg.Done()
+		gndbDiscInfo, gndbErr = fetchGNUDBDiscInfo(discID)
+		gndbDone = true
+	}()
+
+	// Fetch from MusicBrainz
+	go func() {
+		defer wg.Done()
+		mbDiscInfo, mbErr = fetchMusicBrainzRelease(mbToc)
+		mbDone = true
+	}()
+
+	// Wait for both fetches to complete
+	wg.Wait()
+
+	// Decide on the final discInfo, prioritizing GNUDB data where available
+	finalDiscInfo := &DiscInfo{}
+	if gndbDone && gndbErr == nil {
+		*finalDiscInfo = *gndbDiscInfo
+	} else if mbDone && mbErr == nil {
+		*finalDiscInfo = *mbDiscInfo
+	}
+
+	// Use MusicBrainz ID regardless of source priority
+	if mbDiscInfo != nil {
+		finalDiscInfo.ID = mbDiscInfo.ID
+	}
+
+	// If both failed, return an error
+	if gndbErr != nil && mbErr != nil {
+		return nil, gndbErr
+	}
+
+	return finalDiscInfo, nil
+}
+
 func fetchCoverArt(mbID, coverFile string) error {
 	url := fmt.Sprintf("%s/%s/front", coverArtURL, mbID)
 	resp, err := http.Get(url)
@@ -310,20 +358,15 @@ func main() {
 	if err := os.MkdirAll(filepath.Dir(cueFilePath), os.ModePerm); err != nil {
 		log.Fatalf("error creating folder for discID: %v", err)
 	}
-	// Attempt to fetch from GNUDB
-	discInfo, err = fetchGNUDBDiscInfo(strings.Replace(gnuToc, " ", "+", -1))
+	// Fetch DiscInfo concurrently
+	discInfo, err = fetchDiscInfoConcurrently(
+		strings.Replace(gnuToc, " ", "+", -1),
+		strings.Replace(mbToc, " ", "+", -1),
+	)
 	if err != nil {
-		log.Printf("info: GNUDB retrieval failed, trying MusicBrainz. Error: %v", err)
-
-		// Attempt to fetch from MusicBrainz if GNUDB fails
-		
-		discInfo, err = fetchMusicBrainzRelease(strings.Replace(mbToc, " ", "+", -1))
-		if err != nil {
-			log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz")
-		}
+		log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 
-	// If MusicBrainz, attempt cover fetch
 	if discInfo.CoverArtPath == "" {
 		coverFilePath := cacheCoverArtPath(discID)
 		if fetchCoverArt(discInfo.ID, coverFilePath) == nil {
