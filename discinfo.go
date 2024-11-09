@@ -95,15 +95,7 @@ func parseGNUDBResponse(body io.Reader) (*DiscInfo, error) {
 func fetchMusicBrainzRelease(discID string) (*DiscInfo, error) {
 	url := fmt.Sprintf("%s/discid/-?toc=%s&inc=artists+recordings&fmt=json", mbURL, discID)
 	var result struct {
-		Releases []struct {
-			ID             string `json:"id"`
-			Title          string `json:"title"`
-			Date           string `json:"date"`
-			ArtistCredit   []struct{ Name string } `json:"artist-credit"`
-			Media          []struct {
-				Tracks []struct{ Title string }
-			} `json:"media"`
-		} `json:"releases"`
+		Releases []MBRelease `json:"releases"`
 	}
 	if err := fetchJSON(url, &result); err != nil {
 		return nil, err
@@ -192,4 +184,3 @@ func fetchCoverArt(mbID, coverFile string) error {
 	_, err = io.Copy(file, resp.Body)
 	return err
 }
-
