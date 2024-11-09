@@ -174,6 +174,9 @@ func fetchCoverArt(mbID, coverFile string) error {
 		return err
 	}
 	defer resp.Body.Close()
+	if resp.StatusCode >= 400 {
+		return fmt.Errorf("failed to fetch cover art: received status code %d", resp.StatusCode)
+	}
 
 	file, err := os.Create(coverFile)
 	if err != nil {

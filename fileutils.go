@@ -21,6 +21,13 @@ func generateCueFile(info *DiscInfo, cueFilePath string) error {
 	}
 	defer file.Close()
 
+	if info.CoverArtPath == "" {
+		coverFilePath := cacheCoverArtPath(filepath.Dir(cueFilePath))
+		if fetchCoverArt(info.ID, coverFilePath) == nil {
+			info.CoverArtPath = coverFilePath
+		}
+	}
+
 	content := fmt.Sprintf("REM DATE \"%s\"\nREM COVER \"%s\"\nPERFORMER \"%s\"\nTITLE \"%s\"\n",
 		info.ReleaseDate, info.CoverArtPath, info.Artist, info.Title)
 
