@@ -52,13 +52,6 @@ func main() {
 		log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 
-	if discInfo.CoverArtPath == "" {
-		coverFilePath := cacheCoverArtPath(discID)
-		if fetchCoverArt(discInfo.ID, coverFilePath) == nil {
-			discInfo.CoverArtPath = coverFilePath
-		}
-	}
-
 	// Generate the CUE file and save
 	if err := generateCueFile(discInfo, cueFilePath); err != nil {
 		log.Fatalf("error: failed to generate CUE file: %v", err)
