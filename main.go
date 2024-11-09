@@ -7,16 +7,6 @@ import (
 	"strings"
 )
 
-type DiscInfo struct {
-	ID           string
-	Artist       string
-	Title        string
-	ReleaseDate  string
-	Genre        string
-	Tracks       []string
-	CoverArtPath string
-}
-
 func main() {
 	if err := os.Remove(envFile); err != nil && !os.IsNotExist(err) {
 		log.Fatalf("error removing env file: %v", err)
