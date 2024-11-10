@@ -1,7 +1,9 @@
-package main
+package utils
 
 import (
 	"fmt"
+	"github.com/b0bbywan/go-cd-cuer/discinfo"
+	"github.com/b0bbywan/go-cd-cuer/types"
 	"log"
 	"os"
 	"path/filepath"
@@ -15,7 +17,7 @@ var (
 	cacheLocation = fmt.Sprintf("%s/.cddb", os.Getenv("HOME"))
 )
 
-func generateCueFile(info *DiscInfo, cueFilePath string) error {
+func GenerateCueFile(info *types.DiscInfo, cueFilePath string) error {
 	file, err := os.Create(cueFilePath)
 	if err != nil {
 		return err
@@ -24,7 +26,7 @@ func generateCueFile(info *DiscInfo, cueFilePath string) error {
 
 	if info.CoverArtPath == "" {
 		coverFilePath := cacheCoverArtPath(filepath.Base(filepath.Dir(cueFilePath)))
-		if err := fetchCoverArt(info.ID, coverFilePath); err == nil {
+		if err := discinfo.FetchCoverArt(info.ID, coverFilePath); err == nil {
 			info.CoverArtPath = coverFilePath
 		} else {
 			log.Printf("error getting cover: %v", err)
@@ -53,9 +55,9 @@ func generateCueFile(info *DiscInfo, cueFilePath string) error {
 }
 
 // checkIfPlaylistExists checks if the CUE file already exists.
-func checkIfPlaylistExists(cueFilePath string) bool {
+func CheckIfPlaylistExists(cueFilePath string) bool {
 	if _, err := os.Stat(cueFilePath); err == nil {
-		saveEnvFile(cueFilePath)
+		SaveEnvFile(cueFilePath)
 		log.Printf("info: Playlist already exists at %s", cueFilePath)
 		return true
 	}
@@ -63,7 +65,7 @@ func checkIfPlaylistExists(cueFilePath string) bool {
 }
 
 // removeEnvFile removes the environment file if it exists.
-func removeEnvFile(envFile string) error {
+func RemoveEnvFile() error {
 	if err := os.Remove(envFile); err != nil && !os.IsNotExist(err) {
 		return fmt.Errorf("error removing env file: %v", err)
 	}
@@ -71,11 +73,11 @@ func removeEnvFile(envFile string) error {
 }
 
 // createFolderIfNeeded creates the necessary folder for the playlist file.
-func createFolderIfNeeded(cueFilePath string) error {
+func CreateFolderIfNeeded(cueFilePath string) error {
 	return os.MkdirAll(filepath.Dir(cueFilePath), os.ModePerm)
 }
 
-func cachePlaylistPath(discID string) string {
+func CachePlaylistPath(discID string) string {
 	return filepath.Join(cacheLocation, discID, "playlist.cue")
 }
 
@@ -84,6 +86,6 @@ func cacheCoverArtPath(discID string) string {
 	return filepath.Join(cacheLocation, discID, "cover.jpg")
 }
 
-func saveEnvFile(cueFile string) error {
+func SaveEnvFile(cueFile string) error {
 	return os.WriteFile(envFile, []byte(fmt.Sprintf("CUE_FILE=%s", cueFile)), 0644)
 }

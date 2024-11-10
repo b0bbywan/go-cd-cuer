@@ -3,6 +3,10 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/b0bbywan/go-cd-cuer/discinfo"
+	"github.com/b0bbywan/go-cd-cuer/musicbrainz"
+	"github.com/b0bbywan/go-cd-cuer/types"
+	"github.com/b0bbywan/go-cd-cuer/utils"
 	"log"
 )
 
@@ -20,7 +24,7 @@ func init() {
 }
 
 // fetchDiscInfoFromFlags returns DiscInfo, disc ID, and an error based on provided options.
-func fetchDiscInfoFromFlags() (*DiscInfo, string, error) {
+func fetchDiscInfoFromFlags() (*types.DiscInfo, string, error) {
 	// Enforce --musicbrainz with --disc-id
 	if providedDiscID != "" && musicbrainzID == "" {
 		return nil, "", fmt.Errorf("error: --disc-id option requires --musicbrainz to be set")
@@ -28,7 +32,7 @@ func fetchDiscInfoFromFlags() (*DiscInfo, string, error) {
 
 	// If --musicbrainz is provided, fetch DiscInfo directly from MusicBrainz
 	if musicbrainzID != "" {
-		discInfo, err := fetchMusicBrainzReleaseByID(musicbrainzID)
+		discInfo, err := musicbrainz.FetchReleaseByID(musicbrainzID)
 		if err != nil {
 			return nil, "", err
 		}
@@ -37,19 +41,19 @@ func fetchDiscInfoFromFlags() (*DiscInfo, string, error) {
 	return nil, "", nil
 }
 
-func finalizeIfSuccess(discInfo *DiscInfo, cueFilePath string) {
+func finalizeIfSuccess(discInfo *types.DiscInfo, cueFilePath string) {
 	// Generate the CUE file and save
-	if err := generateCueFile(discInfo, cueFilePath); err != nil {
+	if err := utils.GenerateCueFile(discInfo, cueFilePath); err != nil {
 		log.Fatalf("error: failed to generate CUE file: %v", err)
 	}
-	saveEnvFile(cueFilePath)
+	utils.SaveEnvFile(cueFilePath)
 	log.Printf("info: Playlist generated at %s", cueFilePath)
 }
 
 func main() {
 	flag.Parse()
 
-	if err := removeEnvFile(envFile); err != nil {
+	if err := utils.RemoveEnvFile(); err != nil {
 		log.Fatalf("error removing env file: %v", err)
 	}
 
@@ -60,13 +64,13 @@ func main() {
 
 	var gnuToc string
 	if discID == "" {
-		if gnuToc, discID, err = getTocAndDiscID(); err != nil {
+		if gnuToc, discID, err = utils.GetTocAndDiscID(); err != nil {
 			log.Fatalf("error retrieving disc ID: %v", err)
 		}
 	}
-	cueFilePath := cachePlaylistPath(discID)
+	cueFilePath := utils.CachePlaylistPath(discID)
 
-	if checkIfPlaylistExists(cueFilePath) && !overwrite {
+	if utils.CheckIfPlaylistExists(cueFilePath) && !overwrite {
 		return
 	}
 
@@ -75,16 +79,16 @@ func main() {
 		return
 	}
 	var mbToc string
-	if mbToc, err = getMusicBrainzDiscIDFromCmd(); err != nil {
+	if mbToc, err = utils.GetMusicBrainzDiscIDFromCmd(); err != nil {
 		log.Fatalf("error retrieving MusicBrainz disc ID: %v", err)
 	}
 
-	if err = createFolderIfNeeded(cueFilePath); err != nil {
+	if err = utils.CreateFolderIfNeeded(cueFilePath); err != nil {
 		log.Fatalf("error creating folder for discID: %v", err)
 	}
 
 	// Fetch DiscInfo concurrently
-	if discInfo, err = fetchDiscInfoConcurrently(gnuToc, mbToc); err != nil {
+	if discInfo, err = discinfo.FetchDiscInfoConcurrently(gnuToc, mbToc); err != nil {
 		log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 
