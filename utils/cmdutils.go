@@ -1,4 +1,4 @@
-package main
+package utils
 
 import (
 	"log"
@@ -19,7 +19,7 @@ func getDiscID() (string, error) {
 	return runCommand("cd-discid")
 }
 
-func getMusicBrainzDiscIDFromCmd() (string, error) {
+func GetMusicBrainzDiscIDFromCmd() (string, error) {
 	mbToc, err := runCommand("cd-discid", "--musicbrainz")
 	if err != nil {
 		return "", err
@@ -29,7 +29,7 @@ func getMusicBrainzDiscIDFromCmd() (string, error) {
 
 }
 
-func getTocAndDiscID() (string, string, error) {
+func GetTocAndDiscID() (string, string, error) {
 	toc, err := getDiscID()
 	if err != nil {
 		return "", "", err
