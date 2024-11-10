@@ -42,8 +42,11 @@ func fetchDiscInfoFromFlags() (*types.DiscInfo, string, error) {
 }
 
 func finalizeIfSuccess(discInfo *types.DiscInfo, cueFilePath string) {
+    if err := discinfo.FetchCoverArtIfNeeded(discInfo, cueFilePath); err != nil {
+        log.Printf("Error fetching cover art: %v", err)
+    }
 	// Generate the CUE file and save
-	if err := utils.GenerateCueFile(discInfo, cueFilePath); err != nil {
+	if err := discinfo.GenerateCueFile(discInfo, cueFilePath); err != nil {
 		log.Fatalf("error: failed to generate CUE file: %v", err)
 	}
 	utils.SaveEnvFile(cueFilePath)
