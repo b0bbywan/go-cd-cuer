@@ -7,6 +7,15 @@ import (
 	"strings"
 )
 
+func finalizeIfSuccess(discInfo *DiscInfo, cueFilePath string) {
+	// Generate the CUE file and save
+	if err := generateCueFile(discInfo, cueFilePath); err != nil {
+		log.Fatalf("error: failed to generate CUE file: %v", err)
+	}
+	saveEnvFile(cueFilePath)
+	log.Printf("info: Playlist generated at %s", cueFilePath)
+}
+
 func main() {
 	if err := os.Remove(envFile); err != nil && !os.IsNotExist(err) {
 		log.Fatalf("error removing env file: %v", err)
@@ -47,11 +56,5 @@ func main() {
 		log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 
-	// Generate the CUE file and save
-	if err := generateCueFile(discInfo, cueFilePath); err != nil {
-		log.Fatalf("error: failed to generate CUE file: %v", err)
-	}
-
-	saveEnvFile(cueFilePath)
-	log.Printf("info: Playlist generated at %s", cueFilePath)
+	finalizeIfSuccess(discInfo, cueFilePath)
 }
