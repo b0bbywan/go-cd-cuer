@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,13 +10,34 @@ import (
 )
 var (
 	overwrite      bool
+	musicbrainzID  string
+	providedDiscID string
 
 )
 
 func init() {
 	flag.BoolVar(&overwrite, "overwrite", false, "force regenerating the CUE file even if it exists")
+	flag.StringVar(&musicbrainzID, "musicbrainz", "", "specify MusicBrainz release ID directly")
+	flag.StringVar(&providedDiscID, "disc-id", "", "specify disc ID directly")
 }
 
+// fetchDiscInfoFromFlags returns DiscInfo, disc ID, and an error based on provided options.
+func fetchDiscInfoFromFlags() (*DiscInfo, string, error) {
+	// Enforce --musicbrainz with --disc-id
+	if providedDiscID != "" && musicbrainzID == "" {
+		return nil, "", fmt.Errorf("error: --disc-id option requires --musicbrainz to be set")
+	}
+
+	// If --musicbrainz is provided, fetch DiscInfo directly from MusicBrainz
+	if musicbrainzID != "" {
+		discInfo, err := fetchMusicBrainzReleaseByID(musicbrainzID)
+		if err != nil {
+			return nil, "", err
+		}
+		return discInfo, providedDiscID, nil
+	}
+	return nil, "", nil
+}
 
 func finalizeIfSuccess(discInfo *DiscInfo, cueFilePath string) {
 	// Generate the CUE file and save
