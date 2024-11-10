@@ -1,6 +1,7 @@
 package main
 
 import (
+	"log"
 	"os/exec"
 	"strings"
 )
@@ -19,6 +20,20 @@ func getDiscID() (string, error) {
 }
 
 func getMusicBrainzDiscIDFromCmd() (string, error) {
-	return runCommand("cd-discid", "--musicbrainz")
+	mbToc, err := runCommand("cd-discid", "--musicbrainz")
+	if err != nil {
+		return "", err
+	}
+	log.Printf("MB DiscID: %s", mbToc)
+	return mbToc, nil
+
 }
 
+func getTocAndDiscID() (string, string, error) {
+	toc, err := getDiscID()
+	if err != nil {
+		return "", "", err
+	}
+	log.Printf("GNU DiscID: %s", toc)
+	return toc, strings.Fields(toc)[0], nil
+}
