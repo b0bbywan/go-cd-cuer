@@ -90,18 +90,7 @@ func parseGNUDBResponse(body io.Reader) (*DiscInfo, error) {
 	return discInfo, nil
 }
 
-func fetchMusicBrainzRelease(discID string) (*DiscInfo, error) {
-	url := fmt.Sprintf("%s/discid/-?toc=%s&inc=artists+recordings&fmt=json", mbURL, discID)
-	var result ReleaseResult
-	if err := fetchJSON(url, &result); err != nil {
-		return nil, err
-	}
-
-	if len(result.Releases) == 0 {
-		return nil, errors.New("no release data found")
-	}
-
-	release := result.Releases[0]
+func convertMusicBrainzReleaseToDiscInfo(release MBRelease) (*DiscInfo, error) {
 	tracks := make([]string, len(release.Media[0].Tracks))
 	for i, track := range release.Media[0].Tracks {
 		tracks[i] = track.Title
@@ -114,6 +103,31 @@ func fetchMusicBrainzRelease(discID string) (*DiscInfo, error) {
 		ReleaseDate: release.Date,
 		Tracks:      tracks,
 	}, nil
+}
+
+func fetchMusicBrainzReleaseByID(releaseID string) (*DiscInfo, error) {
+	url := fmt.Sprintf("%s/release/%s?inc=artists+recordings&fmt=json", mbURL, releaseID)
+	var release MBRelease
+	if err := fetchJSON(url, &release); err != nil {
+		return nil, err
+	}
+	return convertMusicBrainzReleaseToDiscInfo(release)
+
+}
+
+func fetchMusicBrainzReleaseByToc(mbToc string) (*DiscInfo, error) {
+	url := fmt.Sprintf("%s/discid/-?toc=%s&inc=artists+recordings&fmt=json", mbURL, mbToc)
+	var result ReleaseResult
+	if err := fetchJSON(url, &result); err != nil {
+		return nil, err
+	}
+
+	if len(result.Releases) == 0 {
+		return nil, errors.New("no release data found")
+	}
+
+	release := result.Releases[0]
+	return convertMusicBrainzReleaseToDiscInfo(release)
 }
 
 // Function to fetch disc info from both services using goroutines and WaitGroup
