@@ -1,11 +1,21 @@
 package main
 
 import (
+	"flag"
 	"log"
 	"os"
 	"path/filepath"
 	"strings"
 )
+var (
+	overwrite      bool
+
+)
+
+func init() {
+	flag.BoolVar(&overwrite, "overwrite", false, "force regenerating the CUE file even if it exists")
+}
+
 
 func finalizeIfSuccess(discInfo *DiscInfo, cueFilePath string) {
 	// Generate the CUE file and save
@@ -17,6 +27,8 @@ func finalizeIfSuccess(discInfo *DiscInfo, cueFilePath string) {
 }
 
 func main() {
+	flag.Parse()
+
 	if err := os.Remove(envFile); err != nil && !os.IsNotExist(err) {
 		log.Fatalf("error removing env file: %v", err)
 	}
@@ -42,7 +54,8 @@ func main() {
 	}
 
 	cueFilePath := cachePlaylistPath(discID)
-	if _, err := os.Stat(cueFilePath); err == nil {
+
+	if _, err := os.Stat(cueFilePath); err == nil && !overwrite {
 		saveEnvFile(cueFilePath)
 		log.Printf("info: Playlist already exists at %s", cueFilePath)
 		return
