@@ -23,3 +23,4 @@ type MBRelease struct {
 type ReleaseResult struct {
     Releases []MBRelease `json:"releases"`
 }
+
