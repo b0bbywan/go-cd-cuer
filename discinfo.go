@@ -133,23 +133,25 @@ func fetchMusicBrainzReleaseByToc(mbToc string) (*DiscInfo, error) {
 }
 
 // Function to fetch disc info from both services using goroutines and WaitGroup
-func fetchDiscInfoConcurrently(discID, mbToc string) (*DiscInfo, error) {
+func fetchDiscInfoConcurrently(gnuToc, mbToc string) (*DiscInfo, error) {
 	var wg sync.WaitGroup
 	var gndbDiscInfo, mbDiscInfo *DiscInfo
 	var gndbErr, mbErr error
+	formattedGnuTOC := strings.ReplaceAll(gnuToc, " ", "+")
+	formattedMBTOC := strings.ReplaceAll(mbToc, " ", "+")
 
 	wg.Add(2)
 
 	// Fetch from GNUDB
 	go func() {
 		defer wg.Done()
-		gndbDiscInfo, gndbErr = fetchGNUDBDiscInfo(discID)
+		gndbDiscInfo, gndbErr = fetchGNUDBDiscInfo(formattedGnuTOC)
 	}()
 
 	// Fetch from MusicBrainz
 	go func() {
 		defer wg.Done()
-		mbDiscInfo, mbErr = fetchMusicBrainzRelease(mbToc)
+		mbDiscInfo, mbErr = fetchMusicBrainzReleaseByToc(formattedMBTOC)
 	}()
 
 	// Wait for both fetches to complete

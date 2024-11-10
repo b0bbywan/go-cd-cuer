@@ -4,10 +4,8 @@ import (
 	"flag"
 	"fmt"
 	"log"
-	"os"
-	"path/filepath"
-	"strings"
 )
+
 var (
 	overwrite      bool
 	musicbrainzID  string
@@ -51,43 +49,42 @@ func finalizeIfSuccess(discInfo *DiscInfo, cueFilePath string) {
 func main() {
 	flag.Parse()
 
-	if err := os.Remove(envFile); err != nil && !os.IsNotExist(err) {
+	if err := removeEnvFile(envFile); err != nil {
 		log.Fatalf("error removing env file: %v", err)
 	}
 
-	// Fetch disc ID
-	gnuToc, err := getDiscID()
+	discInfo, discID, err := fetchDiscInfoFromFlags()
 	if err != nil {
-		log.Fatalf("error retrieving disc ID: %v", err)
+		log.Fatalf("error parsing options: %v", err)
 	}
-	log.Printf(gnuToc)
-	discID := strings.Fields(gnuToc)[0]
-//	mbToc, err := getMusicBrainzDiscID(gnuToc)
-//	log.Printf(mbToc)
-	mbToc, err := getMusicBrainzDiscIDFromCmd()
-	if err != nil {
-		log.Fatalf("error retrieving disc ID: %v", err)
-	}
-	log.Printf(mbToc)
 
+	var gnuToc string
+	if discID == "" {
+		if gnuToc, discID, err = getTocAndDiscID(); err != nil {
+			log.Fatalf("error retrieving disc ID: %v", err)
+		}
+	}
 	cueFilePath := cachePlaylistPath(discID)
 
-	if _, err := os.Stat(cueFilePath); err == nil && !overwrite {
-		saveEnvFile(cueFilePath)
-		log.Printf("info: Playlist already exists at %s", cueFilePath)
+	if checkIfPlaylistExists(cueFilePath) && !overwrite {
 		return
 	}
 
-	var discInfo *DiscInfo
-	if err := os.MkdirAll(filepath.Dir(cueFilePath), os.ModePerm); err != nil {
+	if discInfo != nil && discID != "" {
+		finalizeIfSuccess(discInfo, cueFilePath)
+		return
+	}
+	var mbToc string
+	if mbToc, err = getMusicBrainzDiscIDFromCmd(); err != nil {
+		log.Fatalf("error retrieving MusicBrainz disc ID: %v", err)
+	}
+
+	if err = createFolderIfNeeded(cueFilePath); err != nil {
 		log.Fatalf("error creating folder for discID: %v", err)
 	}
+
 	// Fetch DiscInfo concurrently
-	discInfo, err = fetchDiscInfoConcurrently(
-		strings.Replace(gnuToc, " ", "+", -1),
-		strings.Replace(mbToc, " ", "+", -1),
-	)
-	if err != nil {
+	if discInfo, err = fetchDiscInfoConcurrently(gnuToc, mbToc); err != nil {
 		log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 
