@@ -5,9 +5,11 @@ import (
 	"github.com/b0bbywan/go-cd-cuer/gnudb"
 	"github.com/b0bbywan/go-cd-cuer/musicbrainz"
 	"github.com/b0bbywan/go-cd-cuer/types"
+	"github.com/b0bbywan/go-cd-cuer/utils"
 	"io"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 	"sync"
 )
@@ -16,7 +18,20 @@ const (
 	coverArtURL   = "https://coverartarchive.org/release"
 )
 
-func FetchCoverArt(mbID, coverFile string) error {
+// FetchCoverArtIfNeeded checks if cover art is missing and fetches it if necessary.
+func FetchCoverArtIfNeeded(discInfo *types.DiscInfo, cueFilePath string) error {
+    if discInfo.CoverArtPath == "" {
+        coverFilePath := utils.CacheCoverArtPath(filepath.Base(filepath.Dir(cueFilePath)))
+        if err := fetchCoverArt(discInfo.ID, coverFilePath); err == nil {
+            discInfo.CoverArtPath = coverFilePath
+        } else {
+            return fmt.Errorf("error getting cover: %v", err)
+        }
+    }
+    return nil
+}
+
+func fetchCoverArt(mbID, coverFile string) error {
 	url := fmt.Sprintf("%s/%s/front", coverArtURL, mbID)
 	resp, err := http.Get(url)
 	if err != nil {
