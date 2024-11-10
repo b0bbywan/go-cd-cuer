@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 )
@@ -49,6 +50,29 @@ func generateCueFile(info *DiscInfo, cueFilePath string) error {
 
 	_, err = file.WriteString(content)
 	return err
+}
+
+// checkIfPlaylistExists checks if the CUE file already exists.
+func checkIfPlaylistExists(cueFilePath string) bool {
+	if _, err := os.Stat(cueFilePath); err == nil {
+		saveEnvFile(cueFilePath)
+		log.Printf("info: Playlist already exists at %s", cueFilePath)
+		return true
+	}
+	return false
+}
+
+// removeEnvFile removes the environment file if it exists.
+func removeEnvFile(envFile string) error {
+	if err := os.Remove(envFile); err != nil && !os.IsNotExist(err) {
+		return fmt.Errorf("error removing env file: %v", err)
+	}
+	return nil
+}
+
+// createFolderIfNeeded creates the necessary folder for the playlist file.
+func createFolderIfNeeded(cueFilePath string) error {
+	return os.MkdirAll(filepath.Dir(cueFilePath), os.ModePerm)
 }
 
 func cachePlaylistPath(discID string) string {
