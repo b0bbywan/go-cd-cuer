@@ -5,6 +5,7 @@ import (
 	"github.com/b0bbywan/go-cd-cuer/musicbrainz"
 	"github.com/b0bbywan/go-cd-cuer/types"
 	"github.com/b0bbywan/go-cd-cuer/utils"
+	"go.uploadedlobster.com/discid"
 	"log"
 	"os"
 	"path/filepath"
@@ -24,9 +25,16 @@ func generate(providedDiscID, musicbrainzID string, overwrite bool) (string, err
 		return "", err
 	}
 
+	var disc discid.Disc
 	var gnuToc string
+
 	if discID == "" {
-		if gnuToc, discID, err = utils.GetTocAndDiscID(); err != nil {
+		disc, err = discid.Read("")
+		if err != nil {
+			return "", err
+		}
+		defer disc.Close()
+		if gnuToc, discID, err = utils.GetTocAndDiscID(disc); err != nil {
 			return "", err
 		}
 	}
@@ -40,7 +48,7 @@ func generate(providedDiscID, musicbrainzID string, overwrite bool) (string, err
 		return finalizeIfSuccess(discInfo, cueFilePath)
 	}
 	var mbToc string
-	if mbToc, err = utils.GetMusicBrainzDiscIDFromCmd(); err != nil {
+	if mbToc, err = utils.GetMusicBrainzTOC(disc); err != nil {
 		return "", err
 	}
 
