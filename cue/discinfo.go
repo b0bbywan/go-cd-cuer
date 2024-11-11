@@ -1,4 +1,4 @@
-package discinfo
+package cue
 
 import (
 	"fmt"
@@ -19,7 +19,7 @@ const (
 )
 
 // FetchCoverArtIfNeeded checks if cover art is missing and fetches it if necessary.
-func FetchCoverArtIfNeeded(discInfo *types.DiscInfo, cueFilePath string) error {
+func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cueFilePath string) error {
     if discInfo.CoverArtPath == "" {
         coverFilePath := utils.CacheCoverArtPath(filepath.Base(filepath.Dir(cueFilePath)))
         if err := fetchCoverArt(discInfo.ID, coverFilePath); err == nil {
@@ -53,7 +53,7 @@ func fetchCoverArt(mbID, coverFile string) error {
 }
 
 // Function to fetch disc info from both services using goroutines and WaitGroup
-func FetchDiscInfoConcurrently(gnuToc, mbToc string) (*types.DiscInfo, error) {
+func fetchDiscInfoConcurrently(gnuToc, mbToc string) (*types.DiscInfo, error) {
 	var wg sync.WaitGroup
 	var gndbDiscInfo, mbDiscInfo *types.DiscInfo
 	var gndbErr, mbErr error
