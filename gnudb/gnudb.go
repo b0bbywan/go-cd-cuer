@@ -18,31 +18,53 @@ const (
 	keyYear  = "DYEAR="
 	keyGenre = "DGENRE="
 	keyTrack = "TTITLE"
-
 )
 
-func FetchDiscInfo(discID string) (*types.DiscInfo, error) {
+func FetchDiscInfo(gnuToc string) (*types.DiscInfo, error) {
 	client := &http.Client{}
-	// First, query GNDB for a match
-	queryURL := fmt.Sprintf("%s?cmd=cddb+query+%s&hello=%s&proto=6", gnudbURL, discID, gnuHello)
-	resp, err := makeGnuRequest(client, queryURL)
+	// First, query GNUDB for a match
+	gnudbID, err := queryGNUDB(client, gnuToc)
 	if err != nil {
 		return nil, err
 	}
-	defer resp.Body.Close()
-
-	body, _ := io.ReadAll(resp.Body)
-	if !strings.Contains(string(body), "Found exact matches") {
-		return nil, errors.New("no exact match found in GNUDB")
+	// Fetch the full metadata from GNDB
+	discInfo, err := fetchFullMetadata(client, gnudbID)
+	if err != nil {
+		return nil, err
 	}
 
-	// Extract GNDB ID and title from query response
-	lines := strings.Split(string(body), "\n")
-	gnudbID := strings.Fields(lines[1])[1]
+	return discInfo, nil
+}
 
-	// Now read full metadata
+func queryGNUDB(client *http.Client, gnuToc string) (string, error) {
+	queryURL := fmt.Sprintf("%s?cmd=cddb+query+%s&hello=%s&proto=6", gnudbURL, gnuToc, gnuHello)
+	resp, err := makeGnuRequest(client, queryURL)
+	if err != nil {
+		return "", err
+	}
+	defer resp.Body.Close()
+
+	body, err := io.ReadAll(resp.Body)
+	if err != nil {
+		return "", fmt.Errorf("failed to read response body: %w", err)
+	}
+	if !strings.Contains(string(body), "Found exact matches") {
+		return "", errors.New("no exact match found in GNUDB")
+	}
+	return extractGnuDBID(string(body))
+}
+
+func extractGnuDBID(response string) (string, error) {
+	lines := strings.Split(response, "\n")
+	if len(lines) < 2 {
+		return "", errors.New("invalid GNUDB response format")
+	}
+	return strings.Fields(lines[1])[1], nil
+}
+
+func fetchFullMetadata(client *http.Client, gnudbID string) (*types.DiscInfo, error) {
 	readURL := fmt.Sprintf("%s?cmd=cddb+read+data+%s&hello=%s&proto=6", gnudbURL, gnudbID, gnuHello)
-	resp, err = makeGnuRequest(client, readURL)
+	resp, err := makeGnuRequest(client, readURL)
 	if err != nil {
 		return nil, err
 	}
