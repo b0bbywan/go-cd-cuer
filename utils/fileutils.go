@@ -1,14 +1,14 @@
 package utils
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
+	"github.com/b0bbywan/go-cd-cuer/config"
 )
 
 var (
-	cacheLocation = fmt.Sprintf("%s/.cddb", os.Getenv("HOME"))
+	cacheLocation = config.CacheLocation
 )
 
 // checkIfPlaylistExists checks if the CUE file already exists.
