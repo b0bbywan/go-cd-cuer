@@ -4,21 +4,35 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
+	"github.com/b0bbywan/go-cd-cuer/config"
 	"github.com/b0bbywan/go-cd-cuer/types"
 	"io"
 	"net/http"
+	"os"
 	"strings"
 )
 
 const (
-	gnudbURL      = "http://yw443mcz.gnudb.org/~cddb/cddb.cgi"
-	gnuHello      = "nas@bobbywan.me+bobbywan.me+rasponkyo+0.1"
 	// Response keys for GNUDB
 	keyTitle = "DTITLE="
 	keyYear  = "DYEAR="
 	keyGenre = "DGENRE="
 	keyTrack = "TTITLE"
 )
+
+var (
+	gnuHello string
+	gnudbURL string
+)
+
+func init() {
+	hostname, err := os.Hostname()
+	if err != nil {
+		hostname = "unknown-host"
+	}
+	gnuHello = fmt.Sprintf("%s+%s+%s+%s", config.GnuHelloEmail, hostname, config.AppName, config.AppVersion)
+	gnudbURL = fmt.Sprintf("%s/~cddb/cddb.cgi", config.GnuDbUrl)
+}
 
 func FetchDiscInfo(gnuToc string) (*types.DiscInfo, error) {
 	client := &http.Client{}
