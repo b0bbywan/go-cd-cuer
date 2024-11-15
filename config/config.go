@@ -46,8 +46,7 @@ func init() () {
     }
 
     if GnuHelloEmail = viper.GetString("gnuHelloEmail"); GnuHelloEmail == "" {
-        fmt.Fprintf(os.Stderr, "gnuHelloEmail is required in config.yaml or via environment variable\n")
-        os.Exit(1)
+        fmt.Fprintf(os.Stderr, "gnuHelloEmail is required in config.yaml or via environment variable to use gnuDB\n")
     }
     CacheLocation = viper.GetString("cacheLocation")
     GnuDbUrl = viper.GetString("gnuDbUrl")
@@ -57,7 +56,7 @@ func init() () {
 func getHomeDir() string {
     home, err := os.UserHomeDir()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Unable to determine user home directory: %v", err)
+        fmt.Fprintf(os.Stderr, "Unable to determine user home directory: %v\n", err)
     }
     return home
 }

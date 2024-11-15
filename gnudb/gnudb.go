@@ -36,6 +36,11 @@ func init() {
 
 func FetchDiscInfo(gnuToc string) (*types.DiscInfo, error) {
 	client := &http.Client{}
+
+	if config.GnuHelloEmail == "" {
+		return nil, fmt.Errorf("gnuHelloEmail is required in config.yaml or via environment variable to use gnuDB")
+	}
+
 	// First, query GNUDB for a match
 	gnudbID, err := queryGNUDB(client, gnuToc)
 	if err != nil {
