@@ -2,16 +2,18 @@ package cue
 
 import (
 	"fmt"
-	"github.com/b0bbywan/go-cd-cuer/gnudb"
-	"github.com/b0bbywan/go-cd-cuer/musicbrainz"
-	"github.com/b0bbywan/go-cd-cuer/types"
-	"github.com/b0bbywan/go-cd-cuer/utils"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"strings"
 	"sync"
+
+	"github.com/b0bbywan/go-disc-cuer/gnudb"
+	"github.com/b0bbywan/go-disc-cuer/musicbrainz"
+	"github.com/b0bbywan/go-disc-cuer/types"
+	"github.com/b0bbywan/go-disc-cuer/utils"
+
 )
 
 const (

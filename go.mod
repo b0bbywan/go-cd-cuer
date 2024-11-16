@@ -1,4 +1,4 @@
-module github.com/b0bbywan/go-cd-cuer
+module github.com/b0bbywan/go-disc-cuer
 
 go 1.18
 

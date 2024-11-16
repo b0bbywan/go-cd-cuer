@@ -5,7 +5,8 @@ import (
 	"fmt"
 	"encoding/json"
 	"net/http"
-	"github.com/b0bbywan/go-cd-cuer/types"
+
+	"github.com/b0bbywan/go-disc-cuer/types"
 )
 
 const (

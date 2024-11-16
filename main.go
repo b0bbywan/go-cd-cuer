@@ -2,8 +2,9 @@ package main
 
 import (
 	"flag"
-	"github.com/b0bbywan/go-cd-cuer/cue"
 	"log"
+
+	"github.com/b0bbywan/go-disc-cuer/cue"
 )
 
 var (

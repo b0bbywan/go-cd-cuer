@@ -9,7 +9,7 @@ import (
 )
 
 const (
-    AppName = "cd-cuer"
+    AppName = "disc-cuer"
     AppVersion = "0.2"
 )
 

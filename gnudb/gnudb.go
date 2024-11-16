@@ -4,12 +4,13 @@ import (
 	"bufio"
 	"errors"
 	"fmt"
-	"github.com/b0bbywan/go-cd-cuer/config"
-	"github.com/b0bbywan/go-cd-cuer/types"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"github.com/b0bbywan/go-disc-cuer/config"
+	"github.com/b0bbywan/go-disc-cuer/types"
 )
 
 const (

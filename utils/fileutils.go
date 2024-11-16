@@ -4,7 +4,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"github.com/b0bbywan/go-cd-cuer/config"
+
+	"github.com/b0bbywan/go-disc-cuer/config"
 )
 
 var (

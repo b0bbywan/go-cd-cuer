@@ -2,13 +2,15 @@ package cue
 
 import (
 	"fmt"
-	"github.com/b0bbywan/go-cd-cuer/musicbrainz"
-	"github.com/b0bbywan/go-cd-cuer/types"
-	"github.com/b0bbywan/go-cd-cuer/utils"
-	"go.uploadedlobster.com/discid"
 	"log"
 	"os"
 	"path/filepath"
+
+	"github.com/b0bbywan/go-disc-cuer/musicbrainz"
+	"github.com/b0bbywan/go-disc-cuer/types"
+	"github.com/b0bbywan/go-disc-cuer/utils"
+	"go.uploadedlobster.com/discid"
+
 )
 
 func GenerateFromDisc() (string, error) {
