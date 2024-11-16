@@ -13,6 +13,14 @@ const (
 	mbURL         = "https://musicbrainz.org/ws/2"
 )
 
+// FetchReleaseByID fetches a MusicBrainz release's information based on its release ID.
+//
+// Parameters:
+//   - releaseID (string): The MusicBrainz release ID (e.g., `ab123456-7890-1234-5678-abcdef123456`).
+//
+// Returns:
+//   - *types.DiscInfo: A struct containing the release's metadata (artist, title, tracks, etc.).
+//   - error: An error if the release data cannot be fetched or parsed.
 func FetchReleaseByID(releaseID string) (*types.DiscInfo, error) {
 	url := fmt.Sprintf("%s/release/%s?inc=artists+recordings&fmt=json", mbURL, releaseID)
 	var release types.MBRelease
@@ -23,6 +31,14 @@ func FetchReleaseByID(releaseID string) (*types.DiscInfo, error) {
 
 }
 
+// FetchReleaseByToc fetches a MusicBrainz release's information based on its TOC (Table of Contents).
+//
+// Parameters:
+//   - mbToc (string): The TOC of the disc in MusicBrainz format (e.g., `12345678`).
+//
+// Returns:
+//   - *types.DiscInfo: A struct containing the release's metadata (artist, title, tracks, etc.).
+//   - error: An error if no release data is found or if the request fails.
 func FetchReleaseByToc(mbToc string) (*types.DiscInfo, error) {
 	url := fmt.Sprintf("%s/discid/-?toc=%s&inc=artists+recordings&fmt=json", mbURL, mbToc)
 	var result types.ReleaseResult
@@ -38,6 +54,14 @@ func FetchReleaseByToc(mbToc string) (*types.DiscInfo, error) {
 	return convertReleaseToDiscInfo(release)
 }
 
+// convertReleaseToDiscInfo converts a MusicBrainz release object to a DiscInfo object.
+//
+// Parameters:
+//   - release (types.MBRelease): A MusicBrainz release object containing the metadata.
+//
+// Returns:
+//   - *types.DiscInfo: A struct with the converted disc information (artist, title, release date, tracks).
+//   - error: An error if any data is missing or cannot be converted.
 func convertReleaseToDiscInfo(release types.MBRelease) (*types.DiscInfo, error) {
 	tracks := make([]string, len(release.Media[0].Tracks))
 	for i, track := range release.Media[0].Tracks {
@@ -53,6 +77,14 @@ func convertReleaseToDiscInfo(release types.MBRelease) (*types.DiscInfo, error) 
 	}, nil
 }
 
+// fetchJSON performs an HTTP GET request to fetch JSON data from a URL and decodes it into the target structure.
+//
+// Parameters:
+//   - url (string): The URL to fetch the JSON data from.
+//   - target (interface{}): A pointer to the target structure where the JSON response will be decoded.
+//
+// Returns:
+//   - error: An error if the request fails or if the response cannot be parsed.
 func fetchJSON(url string, target interface{}) error {
 	resp, err := http.Get(url)
 	if err != nil {

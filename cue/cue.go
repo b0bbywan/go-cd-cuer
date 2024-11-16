@@ -13,14 +13,63 @@ import (
 
 )
 
+// GenerateFromDisc generates a CUE file for the currently inserted audio CD
+// using the default behavior. It does not rely on any pre-provided disc ID or
+// MusicBrainz release ID. This function assumes a disc is present and accessible
+// in the drive.
+//
+// Returns:
+//   - string: The path to the generated CUE file, or an existing file if overwrite is not set.
+//   - error: Any error encountered during the process, such as failure to read the disc or generate the file.
 func GenerateFromDisc() (string, error) {
 	return generate("", "", false)
 }
 
+// GenerateWithOptions generates a CUE file with additional options, allowing the user
+// to specify a disc ID or a MusicBrainz release ID, and control whether to overwrite
+// existing CUE files.
+//
+// Parameters:
+//   - providedDiscID (string): A user-supplied disc ID to bypass detection. If empty,
+//                              the disc ID is determined automatically.
+//   - musicbrainzID (string): A MusicBrainz release ID for fetching metadata. If empty,
+//                              GNUDB is used as the fallback metadata source.
+//   - overwrite (bool): If true, forces regeneration of the CUE file even if it already exists.
+//
+// Returns:
+//   - string: The path to the generated or updated CUE file.
+//   - error: Any error encountered during the process, such as metadata fetch or file write failure.
 func GenerateWithOptions(providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
 	return generate(providedDiscID, musicbrainzID, overwrite)
 }
 
+// generate is the core function responsible for creating a CUE file. It handles
+// disc ID calculation, metadata retrieval, and file creation or update.
+//
+// Parameters:
+//   - providedDiscID (string): A user-supplied disc ID (optional).
+//   - musicbrainzID (string): A MusicBrainz release ID for metadata (optional).
+//   - overwrite (bool): Whether to overwrite an existing CUE file.
+//
+// Returns:
+//   - string: The path to the generated or updated CUE file.
+//   - error: Any error encountered during the process.
+//
+// Workflow:
+//   1. If a `providedDiscID` or `musicbrainzID` is provided, fetch corresponding disc info.
+//   2. If `discID` is not determined, read the disc from the drive and compute its ID and TOC.
+//   3. Check if a cached CUE file exists. If so, return it unless `overwrite` is true.
+//   4. If `discInfo` and `discID` are both valid, finalize the CUE file generation.
+//   5. If necessary, fetch metadata concurrently from GNUDB and MusicBrainz.
+//   6. Ensure necessary directories exist, then create and save the CUE file.
+//
+// Notes:
+// - This function is used internally by both `GenerateFromDisc` and `GenerateWithOptions`.
+// - Fetching metadata from GNUDB and MusicBrainz occurs concurrently to improve efficiency.
+//
+// Returns:
+//   - string: The path to the generated CUE file.
+//   - error: Any error encountered during the operation.
 func generate(providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
 	discInfo, discID, err := fetchDiscInfoFromFlags(providedDiscID, musicbrainzID)
 	if err != nil {
