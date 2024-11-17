@@ -1,5 +1,7 @@
 # go-disc-cuer
 
+[![Go Reference](https://pkg.go.dev/badge/github.com/b0bbywan/go-disc-cuer/.svg)](https://pkg.go.dev/github.com/b0bbywan/go-disc-cuer/)
+
 `go-disc-cuer` is a CLI tool for generating CUE files from audio CDs, with support for metadata enrichment from GNDB and MusicBrainz. It leverages `libdiscid` for disc ID calculation and provides options for customization and integration into workflows.
 
 ## Features
@@ -43,21 +45,23 @@ Generate a CUE file for the current CD:
     ```
 
 2. Options
-`--overwrite`: Regenerate the CUE file even if it exists.
-`--musicbrainz` <release_id>: Specify a MusicBrainz release ID to fetch album metadata.
-`--disc-id` <disc_id>: Provide a custom disc ID. This requires --musicbrainz to associate metadata with the ID.
+- `--overwrite`: Regenerate the CUE file even if it exists.
+- `--musicbrainz <release_id>`: Specify a MusicBrainz release ID to fetch album metadata.
+- `--disc-id <disc_id>`: Provide a custom disc ID. This requires --musicbrainz to associate metadata with the ID.
 
 3. Configuration
 The tool loads configurations in the following order of priority:
 
-4. Command-line flags.
+- Command-line flags.
 - Environment variables prefixed with DISC_CUER_.
 - Configuration files located at:
    - `/etc/disc-cuer/config.yml`
    - `~/.config/disc-cuer/config.yaml`
 
-5. Example Configuration
-**Please note that gnuHelloEmail is mandatory to use gnudb source**
+4. Example Configuration
+
+    **Please note that gnuHelloEmail is mandatory to use gnudb source**
+
     ```yaml
     gnuHelloEmail: "your-email@example.com"
     gnuDbUrl: "https://gnudb.gnudb.org"
@@ -75,13 +79,13 @@ The tool loads configurations in the following order of priority:
     ```
 
 ## Project Structure
-`main/`: Entry point and CLI logic.
-`cue/`: CUE file generation and related utilities.
-`discinfo/`: Disc ID and metadata fetching logic.
-`gnudb/`: GNDB integration.
-`musicbrainz/`: MusicBrainz integration.
-`config`: Configuration package with github.com/spf13/viper.
-`utils/`: Shared helper functions.
+- `main/`: Entry point and CLI logic.
+- `cue/`: CUE file generation and related utilities.
+- `discinfo/`: Disc ID and metadata fetching logic.
+- `gnudb/`: GNUDB integration.
+- `musicbrainz/`: MusicBrainz integration.
+- `config`: Configuration package with github.com/spf13/viper.
+- `utils/`: Shared helper functions.
 
 
 ## Contributing
