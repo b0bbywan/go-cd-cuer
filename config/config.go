@@ -23,13 +23,15 @@ func init() () {
     // Set default values
     viper.SetDefault("gnuHelloEmail", "")
     viper.SetDefault("gnuDbUrl", "https://gnudb.gnudb.org")
-    viper.SetDefault("cacheLocation", filepath.Join(getHomeDir(), ".cache", AppName))
+    viper.SetDefault("cacheLocation", getDefaultCacheFolder())
 
     // Load from configuration file, environment variables, and CLI flags
     viper.SetConfigName("config")  // name of config file (without extension)
     viper.SetConfigType("yaml")    // config file format
     viper.AddConfigPath(filepath.Join("/etc", AppName))  // Global configuration path
-    viper.AddConfigPath(filepath.Join(getHomeDir(), ".config", AppName)) // User config path
+    if home, err := os.UserHomeDir(); err == nil {
+        viper.AddConfigPath(filepath.Join(home, ".config", AppName)) // User config path
+    }
 
     // Environment variable support
     viper.SetEnvPrefix(strings.ReplaceAll(AppName, "-", "_")) // environment variables start with CD_CUER
@@ -52,11 +54,10 @@ func init() () {
     GnuDbUrl = viper.GetString("gnuDbUrl")
 }
 
-// getHomeDir returns the user home directory
-func getHomeDir() string {
+func getDefaultCacheFolder() string {
     home, err := os.UserHomeDir()
     if err != nil {
-        fmt.Fprintf(os.Stderr, "Unable to determine user home directory: %v\n", err)
+        return filepath.Join("var", "cache", AppName)
     }
-    return home
+    return filepath.Join(home, ".cache", AppName)
 }
