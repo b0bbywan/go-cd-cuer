@@ -63,17 +63,22 @@ The tool loads configurations in the following order of priority:
     **Please note that gnuHelloEmail is mandatory to use gnudb source**
 
     ```yaml
-    gnuHelloEmail: "your-email@example.com"
-    gnuDbUrl: "https://gnudb.gnudb.org"
-    cacheLocation: "/var/cache/disc-cuer"
+    gnuHelloEmail: "your-email@example.com"  # (no default)
+    gnuDbUrl: "https://gnudb.gnudb.org"      # (default)
+    cacheLocation: "/var/cache/disc-cuer"    # (root default, else ~/.cache/disc-cuer)
+    device: "/dev/sr0"                       # (default)
+    ```
+
+    ```bash
+    DISC_CUER_GNUHELLOEMAIL="your-email@example.com" DISC_CUER_GNUDBURL="https://gnudb.gnudb.org" DISC_CUER_CACHELOCATION="/var/cache/disc-cuer" DISC_CUER_DEVICE="/dev/sr0" disc-cuer --disc-id <id> --musicbrainz <release_id> --overwrite
     ```
 
 ## Examples
-- Fetch Metadata from music brainz and Generate CUE for current disc
+- Fetch Metadata from music brainz and force Generate CUE for current disc
     ```bash
     disc-cuer --musicbrainz <release_id> --overwrite
     ```
-- Use Custom Disc ID
+- Force Custom Disc ID
     ```bash
     disc-cuer --disc-id <disc_id> --musicbrainz <release_id> --overwrite
     ```

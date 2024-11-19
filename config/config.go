@@ -17,6 +17,7 @@ var (
     GnuHelloEmail string
     GnuDbUrl      string
     CacheLocation string
+    Device        string
 )
 
 func init() () {
@@ -24,6 +25,7 @@ func init() () {
     viper.SetDefault("gnuHelloEmail", "")
     viper.SetDefault("gnuDbUrl", "https://gnudb.gnudb.org")
     viper.SetDefault("cacheLocation", getDefaultCacheFolder())
+    viper.SetDefault("device", "/dev/sr0")
 
     // Load from configuration file, environment variables, and CLI flags
     viper.SetConfigName("config")  // name of config file (without extension)
@@ -52,6 +54,7 @@ func init() () {
     }
     CacheLocation = viper.GetString("cacheLocation")
     GnuDbUrl = viper.GetString("gnuDbUrl")
+    Device = viper.GetString("device")
 }
 
 func getDefaultCacheFolder() string {

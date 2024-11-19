@@ -6,23 +6,24 @@ import (
 	"os"
 	"path/filepath"
 
+	"go.uploadedlobster.com/discid"
+
+	"github.com/b0bbywan/go-disc-cuer/config"
 	"github.com/b0bbywan/go-disc-cuer/musicbrainz"
 	"github.com/b0bbywan/go-disc-cuer/types"
 	"github.com/b0bbywan/go-disc-cuer/utils"
-	"go.uploadedlobster.com/discid"
-
 )
 
 // GenerateFromDisc generates a CUE file for the currently inserted audio CD
 // using the default behavior. It does not rely on any pre-provided disc ID or
 // MusicBrainz release ID. This function assumes a disc is present and accessible
-// in the drive.
+// in the drive. Use Device from config (defaut to "/dev/sr0")
 //
 // Returns:
 //   - string: The path to the generated CUE file, or an existing file if overwrite is not set.
 //   - error: Any error encountered during the process, such as failure to read the disc or generate the file.
 func GenerateFromDisc() (string, error) {
-	return generate("", "", false)
+	return generate(config.Device, "", "", false)
 }
 
 // GenerateWithOptions generates a CUE file with additional options, allowing the user
@@ -30,6 +31,7 @@ func GenerateFromDisc() (string, error) {
 // existing CUE files.
 //
 // Parameters:
+//   - device (string): The path to the CD-ROM device.
 //   - providedDiscID (string): A user-supplied disc ID to bypass detection. If empty,
 //                              the disc ID is determined automatically.
 //   - musicbrainzID (string): A MusicBrainz release ID for fetching metadata. If empty,
@@ -39,14 +41,15 @@ func GenerateFromDisc() (string, error) {
 // Returns:
 //   - string: The path to the generated or updated CUE file.
 //   - error: Any error encountered during the process, such as metadata fetch or file write failure.
-func GenerateWithOptions(providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
-	return generate(providedDiscID, musicbrainzID, overwrite)
+func GenerateWithOptions(device, providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
+	return generate(device, providedDiscID, musicbrainzID, overwrite)
 }
 
 // generate is the core function responsible for creating a CUE file. It handles
 // disc ID calculation, metadata retrieval, and file creation or update.
 //
 // Parameters:
+//   - device (string): The path to the CD-ROM device.
 //   - providedDiscID (string): A user-supplied disc ID (optional).
 //   - musicbrainzID (string): A MusicBrainz release ID for metadata (optional).
 //   - overwrite (bool): Whether to overwrite an existing CUE file.
@@ -70,7 +73,7 @@ func GenerateWithOptions(providedDiscID, musicbrainzID string, overwrite bool) (
 // Returns:
 //   - string: The path to the generated CUE file.
 //   - error: Any error encountered during the operation.
-func generate(providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
+func generate(device, providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
 	discInfo, discID, err := fetchDiscInfoFromFlags(providedDiscID, musicbrainzID)
 	if err != nil {
 		return "", err
@@ -78,9 +81,8 @@ func generate(providedDiscID, musicbrainzID string, overwrite bool) (string, err
 
 	var disc discid.Disc
 	var gnuToc string
-
 	if discID == "" {
-		disc, err = discid.Read("")
+		disc, err = discid.Read(device)
 		if err != nil {
 			return "", err
 		}
