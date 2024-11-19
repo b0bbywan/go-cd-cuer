@@ -72,3 +72,20 @@ func tocToGnu(disc discid.Disc) (string, error) {
 	// Join the components with spaces
 	return strings.Join(offsets, " "), nil
 }
+
+// GetTrackCount retrieves the number of tracks on a given disc object.
+//
+// Parameters:
+//   - device (string): The path to the CD-ROM device.
+//
+// Returns:
+//   - trackCount (int): The total number of tracks on the disc
+//	 - error :  Any error while opening the disc.
+func GetTrackCount(device string) (int, error) {
+	disc, err := discid.Read(device)
+	if err != nil {
+		return 0, err
+	}
+	defer disc.Close()
+	return disc.LastTrackNumber(), nil
+}

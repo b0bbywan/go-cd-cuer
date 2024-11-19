@@ -7,6 +7,7 @@ import (
 	"flag"
 	"log"
 
+	"github.com/b0bbywan/go-disc-cuer/config"
 	"github.com/b0bbywan/go-disc-cuer/cue"
 )
 
@@ -40,7 +41,7 @@ func init() {
 func main() {
 	flag.Parse()
 
-	if _, err := cue.GenerateWithOptions(musicbrainzID, providedDiscID, overwrite); err != nil {
+	if _, err := cue.GenerateWithOptions(config.Device, musicbrainzID, providedDiscID, overwrite); err != nil {
 		log.Fatalf("error: failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 }
