@@ -14,16 +14,28 @@ import (
 	"github.com/b0bbywan/go-disc-cuer/utils"
 )
 
-// GenerateFromDisc generates a CUE file for the currently inserted audio CD
+// GenerateFromDefaultDisc generates a CUE file for the currently inserted audio CD
 // using the default behavior. It does not rely on any pre-provided disc ID or
 // MusicBrainz release ID. This function assumes a disc is present and accessible
 // in the drive. Use Device from config (defaut to "/dev/sr0")
 //
 // Returns:
-//   - string: The path to the generated CUE file, or an existing file if overwrite is not set.
+//   - string: The path to the generated CUE file, or an existing file.
 //   - error: Any error encountered during the process, such as failure to read the disc or generate the file.
-func GenerateFromDisc() (string, error) {
+func GenerateFromDefaultDisc() (string, error) {
 	return generate(config.Device, "", "", false)
+}
+
+// GenerateFromDefaultDisc generates a CUE file for the currently inserted audio CD
+// using the default behavior. It does not rely on any pre-provided disc ID or
+// MusicBrainz release ID. This function assumes a disc is present and accessible
+// in the given drive.
+//
+// Returns:
+//   - string: The path to the generated CUE file, or an existing file.
+//   - error: Any error encountered during the process, such as failure to read the disc or generate the file.
+func GenerateDefaultFromDisc(device string) (string, error) {
+	return generate(device, "", "", false)
 }
 
 // GenerateWithOptions generates a CUE file with additional options, allowing the user
@@ -39,7 +51,7 @@ func GenerateFromDisc() (string, error) {
 //   - overwrite (bool): If true, forces regeneration of the CUE file even if it already exists.
 //
 // Returns:
-//   - string: The path to the generated or updated CUE file.
+//   - string: The path to the generated, or an existing file if overwrite is not set.
 //   - error: Any error encountered during the process, such as metadata fetch or file write failure.
 func GenerateWithOptions(device, providedDiscID, musicbrainzID string, overwrite bool) (string, error) {
 	return generate(device, providedDiscID, musicbrainzID, overwrite)

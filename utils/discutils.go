@@ -80,7 +80,7 @@ func tocToGnu(disc discid.Disc) (string, error) {
 //
 // Returns:
 //   - trackCount (int): The total number of tracks on the disc
-//	 - error :  Any error while opening the disc.
+//   - error :  Any error while opening the disc.
 func GetTrackCount(device string) (int, error) {
 	disc, err := discid.Read(device)
 	if err != nil {
