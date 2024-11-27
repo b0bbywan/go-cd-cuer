@@ -32,15 +32,15 @@ const (
 // Returns:
 //   - error: An error if the cover art cannot be fetched or saved; nil otherwise.
 func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cacheLocation, cueFilePath string) error {
-    if discInfo.CoverArtPath == "" {
-        coverFilePath := utils.CacheCoverArtPath(cacheLocation, filepath.Base(filepath.Dir(cueFilePath)))
-        if err := fetchCoverArt(discInfo.ID, coverFilePath); err == nil {
-            discInfo.CoverArtPath = coverFilePath
-        } else {
-            return fmt.Errorf("error getting cover: %v", err)
-        }
-    }
-    return nil
+	if discInfo.CoverArtPath == "" {
+		coverFilePath := utils.CacheCoverArtPath(cacheLocation, filepath.Base(filepath.Dir(cueFilePath)))
+		if err := fetchCoverArt(discInfo.ID, coverFilePath); err == nil {
+			discInfo.CoverArtPath = coverFilePath
+		} else {
+			return fmt.Errorf("error getting cover: %w", err)
+		}
+	}
+	return nil
 }
 
 
@@ -140,7 +140,7 @@ func selectDiscInfo(gndbDiscInfo *types.DiscInfo, gndbErr error, mbDiscInfo *typ
 
 	// If both failed, return an error
 	if gndbErr != nil && mbErr != nil {
-		return nil, fmt.Errorf("failed to fetch from both sources: GNUDB error: %v; MusicBrainz error: %v", gndbErr, mbErr)
+		return nil, fmt.Errorf("failed to fetch from both sources: GNUDB error: %w; MusicBrainz error: %w", gndbErr, mbErr)
 	}
 
 	return finalDiscInfo, nil
