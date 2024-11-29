@@ -22,6 +22,8 @@ var (
 	// providedDiscID specifies the disc ID to be used for generating the CUE file.
 	providedDiscID string
 
+	// deviceFlag specifies the drive to read data from
+	deviceFlag string
 )
 
 // init initializes the command-line flags and their descriptions.
@@ -34,17 +36,30 @@ func init() {
 
 	// -disc-id flag to specify a direct disc ID
 	flag.StringVar(&providedDiscID, "disc-id", "", "specify disc ID directly")
+
+	flag.StringVar(&deviceFlag, "device", "", "Disc Device")
+}
+
+func getDevice(device string, cuerConfig *config.Config) string {
+	if device != "" {
+		return device
+	}
+	return cuerConfig.Device
 }
 
 // main is the entry point for the program. It parses the flags and generates a CUE file
 // based on the provided MusicBrainz ID, disc ID, and overwrite flag.
 func main() {
 	flag.Parse()
+
 	cuerConfig, err := config.NewDefaultConfig()
 	if err != nil {
 		log.Fatalf("error: Failed to initialize %s config: %v", config.AppName, err)
 	}
-	if _, err = cue.GenerateWithOptions(cuerConfig.Device, cuerConfig, musicbrainzID, providedDiscID, overwrite); err != nil {
+
+	device := getDevice(deviceFlag, cuerConfig)
+
+	if _, err = cue.GenerateWithOptions(device, cuerConfig, musicbrainzID, providedDiscID, overwrite); err != nil {
 		log.Fatalf("error: Failed to generate playlist from both GNUDB and MusicBrainz: %v", err)
 	}
 }
