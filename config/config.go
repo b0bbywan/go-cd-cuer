@@ -10,17 +10,17 @@ import (
 )
 
 const (
-	AppName = "disc-cuer"
+	AppName    = "disc-cuer"
 	AppVersion = "0.3"
 )
 
 type Config struct {
-	AppName			string
-	AppVersion		string
-	GnuHelloEmail	string
-	GnuDbUrl		string
-	CacheLocation	string
-	Device			string
+	AppName       string
+	AppVersion    string
+	GnuHelloEmail string
+	GnuDbUrl      string
+	CacheLocation string
+	Device        string
 }
 
 // NewDefaultConfig creates a Config struct with default application settings.

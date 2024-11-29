@@ -1,16 +1,16 @@
 package musicbrainz
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
-	"encoding/json"
 	"net/http"
 
 	"github.com/b0bbywan/go-disc-cuer/types"
 )
 
 const (
-	mbURL         = "https://musicbrainz.org/ws/2"
+	mbURL = "https://musicbrainz.org/ws/2"
 )
 
 // FetchReleaseByID fetches a MusicBrainz release's information based on its release ID.

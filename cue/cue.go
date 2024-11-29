@@ -53,9 +53,9 @@ func GenerateDefaultFromDisc(device string, cuerConfig *config.Config) (string, 
 //   - device (string): The path to the CD-ROM device.
 //   - cuerConfig: The Config instance to use for generating the CUE file.
 //   - providedDiscID (string): A user-supplied disc ID to bypass detection. If empty,
-//                              the disc ID is determined automatically.
+//     the disc ID is determined automatically.
 //   - musicbrainzID (string): A MusicBrainz release ID for fetching metadata. If empty,
-//                              GNUDB is used as the fallback metadata source.
+//     GNUDB is used as the fallback metadata source.
 //   - overwrite (bool): If true, forces regeneration of the CUE file even if it already exists.
 //
 // Returns:
@@ -80,12 +80,12 @@ func GenerateWithOptions(device string, cuerConfig *config.Config, providedDiscI
 //   - error: Any error encountered during the process.
 //
 // Workflow:
-//   1. If a `providedDiscID` or `musicbrainzID` is provided, fetch corresponding disc info.
-//   2. If `discID` is not determined, read the disc from the drive and compute its ID and TOC.
-//   3. Check if a cached CUE file exists. If so, return it unless `overwrite` is true.
-//   4. If `discInfo` and `discID` are both valid, finalize the CUE file generation.
-//   5. If necessary, fetch metadata concurrently from GNUDB and MusicBrainz.
-//   6. Ensure necessary directories exist, then create and save the CUE file.
+//  1. If a `providedDiscID` or `musicbrainzID` is provided, fetch corresponding disc info.
+//  2. If `discID` is not determined, read the disc from the drive and compute its ID and TOC.
+//  3. Check if a cached CUE file exists. If so, return it unless `overwrite` is true.
+//  4. If `discInfo` and `discID` are both valid, finalize the CUE file generation.
+//  5. If necessary, fetch metadata concurrently from GNUDB and MusicBrainz.
+//  6. Ensure necessary directories exist, then create and save the CUE file.
 //
 // Notes:
 // - This function is used internally by both `GenerateFromDisc` and `GenerateWithOptions`.
@@ -171,9 +171,9 @@ func fetchDiscInfoFromFlags(musicbrainzID, providedDiscID string) (*types.DiscIn
 //   - string: The path to the finalized CUE file.
 //   - error: Any error encountered during the operation.
 func finalizeIfSuccess(discInfo *types.DiscInfo, cacheLocation, cueFilePath string) (string, error) {
-    if err := fetchCoverArtIfNeeded(discInfo, cacheLocation, cueFilePath); err != nil {
-        log.Printf("Error fetching cover art: %v", err)
-    }
+	if err := fetchCoverArtIfNeeded(discInfo, cacheLocation, cueFilePath); err != nil {
+		log.Printf("Error fetching cover art: %v", err)
+	}
 	// Generate the CUE file and save
 	if err := generateCueFile(discInfo, cacheLocation, cueFilePath); err != nil {
 		return "", fmt.Errorf("Failed To Generate cue file %s: %w", cueFilePath, err)

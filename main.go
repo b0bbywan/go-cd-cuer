@@ -14,10 +14,10 @@ import (
 // Command-line flags
 var (
 	// overwrite specifies whether to force regenerate the CUE file even if it exists.
-	overwrite      bool
+	overwrite bool
 
-	// musicbrainzID specifies the MusicBrainz release ID for fetching the release information.	
-	musicbrainzID  string
+	// musicbrainzID specifies the MusicBrainz release ID for fetching the release information.
+	musicbrainzID string
 
 	// providedDiscID specifies the disc ID to be used for generating the CUE file.
 	providedDiscID string

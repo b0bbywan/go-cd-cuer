@@ -11,13 +11,13 @@ package types
 //   - Tracks ([]string): A list of track titles in the release.
 //   - CoverArtPath (string): The file path where the cover art image is stored (optional).
 type DiscInfo struct {
-	ID           string		// Unique ID for the disc
-	Artist       string		// Artist or band name
-	Title        string		// Title of the album or release
-	ReleaseDate  string		// Release date of the disc
-	Genre        string		// Genre of the album
-	Tracks       []string	// List of track titles
-	CoverArtPath string		// Path to the cover art image
+	ID           string   // Unique ID for the disc
+	Artist       string   // Artist or band name
+	Title        string   // Title of the album or release
+	ReleaseDate  string   // Release date of the disc
+	Genre        string   // Genre of the album
+	Tracks       []string // List of track titles
+	CoverArtPath string   // Path to the cover art image
 }
 
 // MBRelease represents a MusicBrainz release. This struct is used for parsing MusicBrainz API responses.
@@ -29,12 +29,13 @@ type DiscInfo struct {
 //   - ArtistCredit ([]struct{Name string}): A list of artist credits, with each artist's name as a string.
 //   - Media ([]struct{ Tracks []struct{ Title string } }): Media tracks, with each track containing its title.
 type MBRelease struct {
-	ID             string `json:"id"`		// MusicBrainz release ID
-	Title          string `json:"title"`	// Release title
-	Date           string `json:"date"`		// Release date in MusicBrainz format
-	ArtistCredit   []struct{ Name string 	// Artist credit information
+	ID           string `json:"id"`    // MusicBrainz release ID
+	Title        string `json:"title"` // Release title
+	Date         string `json:"date"`  // Release date in MusicBrainz format
+	ArtistCredit []struct {
+		Name string // Artist credit information
 	} `json:"artist-credit"`
-	Media          []struct {				// List of tracks in the release
+	Media []struct { // List of tracks in the release
 		Tracks []struct{ Title string }
 	} `json:"media"`
 }
@@ -43,5 +44,5 @@ type MBRelease struct {
 // Fields:
 //   - Releases ([]MBRelease): A list of `MBRelease` structs that represent the releases matched by the query.
 type ReleaseResult struct {
-    Releases []MBRelease `json:"releases"`	// List of matching releases
+	Releases []MBRelease `json:"releases"` // List of matching releases
 }

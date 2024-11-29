@@ -14,11 +14,10 @@ import (
 	"github.com/b0bbywan/go-disc-cuer/musicbrainz"
 	"github.com/b0bbywan/go-disc-cuer/types"
 	"github.com/b0bbywan/go-disc-cuer/utils"
-
 )
 
 const (
-	coverArtURL   = "https://coverartarchive.org/release"
+	coverArtURL = "https://coverartarchive.org/release"
 )
 
 // fetchCoverArtIfNeeded ensures that cover art is available for the given disc.
@@ -43,7 +42,6 @@ func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cacheLocation, cueFilePath 
 	return nil
 }
 
-
 // fetchCoverArt downloads cover art from the Cover Art Archive using a MusicBrainz ID.
 //
 // Parameters:
@@ -52,7 +50,7 @@ func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cacheLocation, cueFilePath 
 //
 // Returns:
 //   - error: An error if the HTTP request fails, the response status is not OK,
-//            or the file cannot be saved; nil otherwise.
+//     or the file cannot be saved; nil otherwise.
 func fetchCoverArt(mbID, coverFile string) error {
 	url := fmt.Sprintf("%s/%s/front", coverArtURL, mbID)
 	resp, err := http.Get(url)
@@ -84,6 +82,7 @@ func fetchCoverArt(mbID, coverFile string) error {
 // Returns:
 //   - *types.DiscInfo: Consolidated metadata about the disc, prioritizing GNUDB data when available.
 //   - error: An error if both sources fail to provide valid data; nil otherwise.
+//
 // Function to fetch disc info from both services using goroutines and WaitGroup
 func fetchDiscInfoConcurrently(cuerConfig *config.Config, gnuToc, mbToc string) (*types.DiscInfo, error) {
 	var wg sync.WaitGroup
