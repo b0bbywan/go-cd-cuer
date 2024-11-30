@@ -48,6 +48,7 @@ Generate a CUE file for the current CD:
 - `--overwrite`: Regenerate the CUE file even if it exists.
 - `--musicbrainz <release_id>`: Specify a MusicBrainz release ID to fetch album metadata.
 - `--disc-id <disc_id>`: Provide a custom disc ID. This requires --musicbrainz to associate metadata with the ID.
+- `--device <device>`: Specify the disc drive device to read from (overrides config or default)
 
 3. Configuration
 The tool loads configurations in the following order of priority:

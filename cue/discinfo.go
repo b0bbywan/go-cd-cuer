@@ -9,15 +9,15 @@ import (
 	"strings"
 	"sync"
 
+	"github.com/b0bbywan/go-disc-cuer/config"
 	"github.com/b0bbywan/go-disc-cuer/gnudb"
 	"github.com/b0bbywan/go-disc-cuer/musicbrainz"
 	"github.com/b0bbywan/go-disc-cuer/types"
 	"github.com/b0bbywan/go-disc-cuer/utils"
-
 )
 
 const (
-	coverArtURL   = "https://coverartarchive.org/release"
+	coverArtURL = "https://coverartarchive.org/release"
 )
 
 // fetchCoverArtIfNeeded ensures that cover art is available for the given disc.
@@ -30,18 +30,17 @@ const (
 //
 // Returns:
 //   - error: An error if the cover art cannot be fetched or saved; nil otherwise.
-func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cueFilePath string) error {
-    if discInfo.CoverArtPath == "" {
-        coverFilePath := utils.CacheCoverArtPath(filepath.Base(filepath.Dir(cueFilePath)))
-        if err := fetchCoverArt(discInfo.ID, coverFilePath); err == nil {
-            discInfo.CoverArtPath = coverFilePath
-        } else {
-            return fmt.Errorf("error getting cover: %v", err)
-        }
-    }
-    return nil
+func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cacheLocation, cueFilePath string) error {
+	if discInfo.CoverArtPath == "" {
+		coverFilePath := utils.CacheCoverArtPath(cacheLocation, filepath.Base(filepath.Dir(cueFilePath)))
+		if err := fetchCoverArt(discInfo.ID, coverFilePath); err == nil {
+			discInfo.CoverArtPath = coverFilePath
+		} else {
+			return fmt.Errorf("error getting cover: %w", err)
+		}
+	}
+	return nil
 }
-
 
 // fetchCoverArt downloads cover art from the Cover Art Archive using a MusicBrainz ID.
 //
@@ -51,7 +50,7 @@ func fetchCoverArtIfNeeded(discInfo *types.DiscInfo, cueFilePath string) error {
 //
 // Returns:
 //   - error: An error if the HTTP request fails, the response status is not OK,
-//            or the file cannot be saved; nil otherwise.
+//     or the file cannot be saved; nil otherwise.
 func fetchCoverArt(mbID, coverFile string) error {
 	url := fmt.Sprintf("%s/%s/front", coverArtURL, mbID)
 	resp, err := http.Get(url)
@@ -83,8 +82,9 @@ func fetchCoverArt(mbID, coverFile string) error {
 // Returns:
 //   - *types.DiscInfo: Consolidated metadata about the disc, prioritizing GNUDB data when available.
 //   - error: An error if both sources fail to provide valid data; nil otherwise.
+//
 // Function to fetch disc info from both services using goroutines and WaitGroup
-func fetchDiscInfoConcurrently(gnuToc, mbToc string) (*types.DiscInfo, error) {
+func fetchDiscInfoConcurrently(cuerConfig *config.Config, gnuToc, mbToc string) (*types.DiscInfo, error) {
 	var wg sync.WaitGroup
 	var gndbDiscInfo, mbDiscInfo *types.DiscInfo
 	var gndbErr, mbErr error
@@ -96,7 +96,7 @@ func fetchDiscInfoConcurrently(gnuToc, mbToc string) (*types.DiscInfo, error) {
 	// Fetch from GNUDB
 	go func() {
 		defer wg.Done()
-		gndbDiscInfo, gndbErr = gnudb.FetchDiscInfo(formattedGnuTOC)
+		gndbDiscInfo, gndbErr = gnudb.FetchDiscInfo(cuerConfig, formattedGnuTOC)
 	}()
 
 	// Fetch from MusicBrainz
@@ -139,7 +139,7 @@ func selectDiscInfo(gndbDiscInfo *types.DiscInfo, gndbErr error, mbDiscInfo *typ
 
 	// If both failed, return an error
 	if gndbErr != nil && mbErr != nil {
-		return nil, fmt.Errorf("failed to fetch from both sources: GNUDB error: %v; MusicBrainz error: %v", gndbErr, mbErr)
+		return nil, fmt.Errorf("failed to fetch from both sources: GNUDB error: %w; MusicBrainz error: %w", gndbErr, mbErr)
 	}
 
 	return finalDiscInfo, nil
